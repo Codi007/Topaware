@@ -15,15 +15,11 @@ local section1 = tab.new_section(':DDD HI')
 local sector = section.new_sector('OK', 'Left')
 local sector1 = section.new_sector('BRUHHHH', 'Right')
 
-
-
 local Players = game:GetService("Players")
 local highlights = {}  
 local highlightColor = Color3.fromRGB(84, 101, 255)
 
-
 local function ApplyHighlight(Player)
-    
     local Character = Player.Character or Player.CharacterAdded:Wait()
     local Humanoid = Character:WaitForChild("Humanoid")
     local Highlight = Instance.new("Highlight", Character)
@@ -40,7 +36,6 @@ local function ApplyHighlight(Player)
         end
     end
 
-    
     Humanoid:GetPropertyChangedSignal("Health"):Connect(function()
         if Humanoid.Health <= 0 then
             Disconnect()
@@ -48,11 +43,8 @@ local function ApplyHighlight(Player)
     end)
     
     Player:GetPropertyChangedSignal("TeamColor"):Connect(UpdateFillColor)
-    
-    
     UpdateFillColor()
 end
-
 
 local function HighlightPlayer(Player)
     if Player.Character then
@@ -77,7 +69,6 @@ local toggle = sector.element('Toggle', 'Chams', false, function(enabled)
                 Highlight:Destroy()
             end
         end
-       
         highlights = {}
     end
 end)
@@ -93,7 +84,7 @@ toggle:add_color({Color = highlightColor}, nil, function(v)
     end
 end)
 
-local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, function(enabled)
+local cornerboxes = sector.element('Toggle', 'Corner boxes (2d)', false, function(enabled)
     local Settings = {
         Box_Color = Color3.fromRGB(255, 0, 0), 
         Box_Thickness = 2,
@@ -102,12 +93,10 @@ local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, functio
         Autothickness = true
     }
     
-    --Locals
     local Space = game:GetService("Workspace")
     local Player = game:GetService("Players").LocalPlayer
     local Camera = Space.CurrentCamera
     
-    -- Locals
     local function NewLine(color, thickness)
         local line = Drawing.new("Line")
         line.Visible = false
@@ -120,36 +109,27 @@ local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, functio
     end
     
     local function Vis(lib, state)
-        for i, v in pairs(lib) do
+        for _, v in pairs(lib) do
             v.Visible = state
         end
     end
     
     local function Colorize(lib, color)
-        for i, v in pairs(lib) do
+        for _, v in pairs(lib) do
             v.Color = color
         end
     end
     
-    --Main Draw Function
     local function Main(plr)
         repeat wait() until plr.Character ~= nil and plr.Character:FindFirstChild("Humanoid") ~= nil
-        local R15
-        if plr.Character.Humanoid.RigType == Enum.HumanoidRigType.R15 then
-            R15 = true
-        else 
-            R15 = false
-        end
+        local R15 = plr.Character.Humanoid.RigType == Enum.HumanoidRigType.R15
         local Library = {
             TL1 = NewLine(Settings.Box_Color, Settings.Box_Thickness),
             TL2 = NewLine(Settings.Box_Color, Settings.Box_Thickness),
-    
             TR1 = NewLine(Settings.Box_Color, Settings.Box_Thickness),
             TR2 = NewLine(Settings.Box_Color, Settings.Box_Thickness),
-    
             BL1 = NewLine(Settings.Box_Color, Settings.Box_Thickness),
             BL2 = NewLine(Settings.Box_Color, Settings.Box_Thickness),
-    
             BR1 = NewLine(Settings.Box_Color, Settings.Box_Thickness),
             BR2 = NewLine(Settings.Box_Color, Settings.Box_Thickness)
         }
@@ -161,11 +141,10 @@ local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, functio
         oripart.Size = Vector3.new(1, 1, 1)
         oripart.Position = Vector3.new(0, 0, 0)
         
-        -- Loop updater
         local function Updater()
             local c 
             c = game:GetService("RunService").RenderStepped:Connect(function()
-                if plr.Character ~= nil and plr.Character:FindFirstChild("Humanoid") ~= nil and plr.Character:FindFirstChild("HumanoidRootPart") ~= nil and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild("Head") ~= nil then
+                if plr.Character and plr.Character:FindFirstChild("Humanoid") and plr.Character:FindFirstChild("HumanoidRootPart") and plr.Character.Humanoid.Health > 0 and plr.Character:FindFirstChild("Head") then
                     local Hum = plr.Character
                     local HumPos, vis = Camera:WorldToViewportPoint(Hum.HumanoidRootPart.Position)
                     if vis then
@@ -180,9 +159,9 @@ local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, functio
     
                         if Settings.Team_Check then
                             if plr.TeamColor == Player.TeamColor then
-                                Colorize(Library, Color3.fromRGB(0, 255, 0)) -- Green clan/team
+                                Colorize(Library, Color3.fromRGB(0, 255, 0))
                             else 
-                                Colorize(Library, Color3.fromRGB(255, 0, 0)) -- Red opp
+                                Colorize(Library, Color3.fromRGB(255, 0, 0))
                             end
                         end
     
@@ -217,12 +196,12 @@ local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, functio
     
                         if Settings.Autothickness then
                             local distance = (Player.Character.HumanoidRootPart.Position - oripart.Position).magnitude
-                            local value = math.clamp(1/distance*100, 1, 4) --0.1 min 6 max
-                            for u, x in pairs(Library) do
+                            local value = math.clamp(1/distance*100, 1, 4)
+                            for _, x in pairs(Library) do
                                 x.Thickness = value
                             end
                         else 
-                            for u, x in pairs(Library) do
+                            for _, x in pairs(Library) do
                                 x.Thickness = Settings.Box_Thickness
                             end
                         end
@@ -231,8 +210,8 @@ local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, functio
                     end
                 else 
                     Vis(Library, false)
-                    if game:GetService("Players"):FindFirstChild(plr.Name) == nil then
-                        for i, v in pairs(Library) do
+                    if not Players:FindFirstChild(plr.Name) then
+                        for _, v in pairs(Library) do
                             v:Remove()
                             oripart:Destroy()
                         end
@@ -244,28 +223,28 @@ local cornerboxes = sector.element('toggle', 'Corner boxes (2d)', false, functio
         coroutine.wrap(Updater)()
     end
     
-    -- Draw Boxes
-    for i, v in pairs(game:GetService("Players"):GetPlayers()) do
-        if v.Name ~= Player.Name then
-          coroutine.wrap(Main)(v)
+    if enabled then
+        -- Draw Boxes
+        for _, v in pairs(Players:GetPlayers()) do
+            if v.Name ~= Player.Name then
+                coroutine.wrap(Main)(v)
+            end
         end
-    end
     
-    game:GetService("Players").PlayerAdded:Connect(function(newplr)
-        coroutine.wrap(Main)(newplr)
-    end)
+        Players.PlayerAdded:Connect(function(newplr)
+            coroutine.wrap(Main)(newplr)
+        end)
+    end
 end)
 
-
-conerboxes:add_color({Color = Settings.Box_Color}, nil, function(v)
+cornerboxes:add_color({Color = Settings.Box_Color}, nil, function(v)
     Settings.Box_Color = v.Color
 end)
 
-conerboxes:ColorPicker({
+cornerboxes:ColorPicker({
     Title = "Colorpicker",
     Description = "e",
     Default = Color3.new(255,0,0),
-    }, function(v)
-        
-        Settings.Box_Color = v
+}, function(v)
+    Settings.Box_Color = v
 end)
